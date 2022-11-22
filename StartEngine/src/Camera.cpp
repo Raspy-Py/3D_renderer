@@ -1,15 +1,7 @@
 #include "Camera.h"
+#include "MathUtils.h"
 
 Camera* Camera::instance = nullptr;
-
-Camera::~Camera()
-{
-	if (instance)
-	{
-		delete instance;
-	}
-	instance = nullptr;
-}
 
 Camera* Camera::GetInstance()
 {
@@ -116,15 +108,17 @@ void Camera::AdjustRotation(const XMVECTOR& rot)
 	rotVector += rot;
 	XMStoreFloat3(&this->rot, rotVector);
 	UpdateViewMatrix();
+	UpdateVectors();
 }
 
 void Camera::AdjustRotation(float x, float y, float z)
 {
-	rot.x += x;
-	rot.y += y;
-	rot.z += z;
+	rot.x = clip(rot.x + x, -90.0f, 90.0f);
+	rot.y = wrapAround(rot.y + y, XM_PI);
+	rot.z = wrapAround(rot.z + z, XM_PI);
 	rotVector = XMLoadFloat3(&rot);
 	UpdateViewMatrix();
+	UpdateVectors();
 }
 
 // Sugar for first person camera

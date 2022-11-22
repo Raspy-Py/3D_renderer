@@ -24,6 +24,7 @@ private:
 private:
 	MSG msg;
 	Timer timer;
+	POINT lastMousePos;
 
 	std::unique_ptr<Graphics> pGraphics;
 	std::unique_ptr<Window> pWindow;

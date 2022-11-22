@@ -6,7 +6,7 @@ Renderer::Renderer(Graphics* gfx, const wchar_t* vertexShaderPath, const wchar_t
 	:
 	gfx(gfx)
 {
-	pCamera.reset(Camera::GetInstance());
+	pCamera = Camera::GetInstance();
 	INFOMAN(*gfx);
 
 	ID3D11Device* pDevice = gfx->GetDevice();
@@ -31,27 +31,44 @@ Renderer::Renderer(Graphics* gfx, const wchar_t* vertexShaderPath, const wchar_t
 	
 	//vertex data
 	std::vector<Vertex> vertices = 
-	{	// coords				// color
-		{-0.5,	 0.5,	0.5,	1.0, 0.0, 0.0, 1.0, 1.0}, //  0---1
+	{	// coords					 // color
+		{0.5,	-0.5,	0.5,	1.0, 0.0, 1.0, 0.0, 1.0}, //  2---1
 		{0.5,	 0.5,	0.5,	1.0, 0.0, 1.0, 0.0, 1.0}, //  |\  |
-		{0.5,	-0.5,	0.5,	1.0, 0.0, 1.0, 0.0, 1.0}, //  |  \|
-		{-0.5,	-0.5,	0.5,	1.0, 0.0, 0.0, 1.0, 1.0}  //  3---2
+		{-0.5,	 0.5,	0.5,	1.0, 0.0, 0.0, 1.0, 1.0}, //  |  \|
+		{-0.5,	-0.5,	0.5,	1.0, 0.0, 0.0, 1.0, 1.0}, //  3---0
+
+		{0.5,	-0.5,	-0.5,	1.0, 0.0, 1.0, 0.0, 1.0}, //  6---5
+		{0.5,	 0.5,	-0.5,	1.0, 0.0, 1.0, 0.0, 1.0}, //  |\  |
+		{-0.5,	 0.5,	-0.5,	1.0, 0.0, 0.0, 1.0, 1.0}, //  |  \|
+		{-0.5,	-0.5,	-0.5,	1.0, 0.0, 0.0, 1.0, 1.0}  //  7---4
 	};
 
 	// indices
 	std::vector<UINT> indices =
 	{
-		0,1,2,
-		0,2,3
+		0,1,2, // front
+		0,2,3,
+
+		4,5,1, // top
+		4,1,0,
+
+		7,6,5, // back
+		7,5,4,
+
+		3,2,6, // down
+		3,6,7,
+
+		1,5,6, // right
+		1,6,2,
+
+		4,0,3, // left
+		4,3,7
 	};
 
 	/*
 	*  WVP
 	*/
 	
-	// World
-	world = XMMatrixIdentity();
-
 	// Camera set up
 	float FOVRad = 70.0f / 180.0f * 3.141592;
 	pCamera->SetProjectionValues(70.0f, 800.0f / 450.0f, 0.1f, 100.0f);
@@ -88,7 +105,7 @@ Renderer::Renderer(Graphics* gfx, const wchar_t* vertexShaderPath, const wchar_t
 	cbd.MiscFlags = 0u;
 	cbd.ByteWidth = sizeof(CBPerObject);
 
-	// subresource structure
+	// subresource structure³
 	D3D11_SUBRESOURCE_DATA vsd = {};
 	vsd.pSysMem = vertices.data();
 
@@ -101,7 +118,6 @@ Renderer::Renderer(Graphics* gfx, const wchar_t* vertexShaderPath, const wchar_t
 	GFX_THROW_INFO(pDevice->CreateBuffer(&ibd, &isd, &pIndexBuffer));
 	// creating constant buffer
 	GFX_THROW_INFO(pDevice->CreateBuffer(&cbd, nullptr, &pWVPConstBuffer));
-	
 	// creating input layout
 	GFX_THROW_INFO(pDevice->CreateInputLayout(
 		layouts.data(), (UINT)layouts.size(),
@@ -117,40 +133,39 @@ Renderer::~Renderer()
 
 void Renderer::DoFrame(float frameTime)
 {
-	INFOMAN(*gfx);
 	ID3D11DeviceContext* pDeviceContext = gfx->GetDeviceContext();
 	const UINT stride = sizeof(Vertex);
 	const UINT offset = 0u;
 
-
-	XMMATRIX view = pCamera->GetViewMatrix();
-	XMMATRIX projection = pCamera->GetProjectionMatrix();
-	XMMATRIX WVP = world * view * projection;
-
-	cbPerObject.WVP = WVP;
-
 	pDeviceContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
 	pDeviceContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	pDeviceContext->IASetInputLayout(pInputLayout.Get());
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	pDeviceContext->VSSetConstantBuffers(0, 1, pWVPConstBuffer.GetAddressOf());
 	pDeviceContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
 	pDeviceContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 
-	pDeviceContext->UpdateSubresource(pWVPConstBuffer.Get(), 0, nullptr, &cbPerObject, 0, 0);
-
-	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	// Clearing screen
 	gfx->ClearFrame(1.0, 1.0, 1.0);
 
-    //Draw the triangle
-	GFX_THROW_INFO_ONLY(pDeviceContext->DrawIndexed(6, 0, 0));
+	// Cube WVP
+	XMMATRIX view = pCamera->GetViewMatrix();
+	XMMATRIX projection = pCamera->GetProjectionMatrix();
+	XMMATRIX world = XMMatrixIdentity();
+	cbPerObject.WVP = world * view * projection;
+	pDeviceContext->UpdateSubresource(pWVPConstBuffer.Get(), 0, nullptr, &cbPerObject, 0, 0);
+
+	// Draw
+	GFX_THROW_INFO_ONLY(pDeviceContext->DrawIndexed(36, 0, 0));
 
     //Present the backbuffer to the screen
-    gfx->GetSwapChain()->Present(1u, 0);
+    gfx->GetSwapChain()->Present(1, 0);
 }
 
 DxgiInfoManager& Renderer::GetInfoManager(Graphics& gfx)
 {
+#if !NDEBUG
 	return gfx.infoManager;
+#endif
 }

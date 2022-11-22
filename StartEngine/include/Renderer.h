@@ -38,8 +38,7 @@ private:
 	Graphics* gfx;
 
 	// Camera stuff
-	std::shared_ptr<Camera> pCamera;
-	XMMATRIX world;
+	Camera* pCamera;
 	CBPerObject cbPerObject;
 
 	// COM objects
@@ -53,7 +52,6 @@ private:
 	wrl::ComPtr<ID3D11Buffer> pVertexBuffer;
 	wrl::ComPtr<ID3D11Buffer> pIndexBuffer;
 	wrl::ComPtr<ID3D11Buffer> pWVPConstBuffer;
-
 	static DxgiInfoManager& GetInfoManager(Graphics& gfx);
 };
 

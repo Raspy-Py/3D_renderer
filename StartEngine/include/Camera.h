@@ -6,7 +6,7 @@ using namespace DirectX;
 class Camera
 {
 public:
-	~Camera();
+	~Camera() = default;
 	Camera(const Camera&) = delete;
 	Camera& operator=(const Camera&) = delete;
 

@@ -26,9 +26,9 @@ Window::WindowClass::WindowClass() noexcept
 {
 	// register class
 	WNDCLASSEX wc = {};
-	wc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
+	/*wc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
 	wc.cbSize = sizeof(wc);
-	wc.style = CS_OWNDC | CS_HREDRAW;
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = HandleMsgSetup;
 	wc.cbWndExtra = 0;
 	wc.cbWndExtra = 0;
@@ -37,7 +37,19 @@ Window::WindowClass::WindowClass() noexcept
 	wc.hIcon = nullptr;
 	wc.hbrBackground = nullptr;
 	wc.lpszMenuName = nullptr;
+	wc.lpszClassName = GetName();*/
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	wc.lpfnWndProc = HandleMsgSetup;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = GetInstance();
+	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+	wc.hIconSm = wc.hIcon;
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.lpszMenuName = NULL;
 	wc.lpszClassName = GetName();
+	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
 }
 
@@ -50,19 +62,50 @@ Window::WindowClass::~WindowClass()
 * WINDOW
 */
 
-Window::Window(const wchar_t* name, bool fullscreen, int height, int width) noexcept(NDEBUG)
-	:
-	width(width),
-	height(height)
+Window::Window(const wchar_t* name, bool fullscreen, int width, int height, bool vsync) noexcept(NDEBUG)
 {
+	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+	unsigned int posX, posY;
+	if (fullscreen)
+	{
+		DEVMODE dmScreenSettings = {};
+		// If full screen set the screen to maximum size of the users desktop and 32bit.
+		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+		dmScreenSettings.dmPelsWidth = static_cast<unsigned long>(screenWidth);
+		dmScreenSettings.dmPelsHeight = static_cast<unsigned long>(screenHeight);
+		dmScreenSettings.dmBitsPerPel = 32;
+		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+		// Change the display settings to full screen.
+		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
+
+		// Set the position of the window to the top left corner.
+		posX = posY = 0;
+	}
+	else
+	{
+		// If windowed then set it to 800x600 resolution.
+		screenWidth = width;
+		screenHeight = height;
+
+		// Place the window in the middle of the screen.
+		posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
+		posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
+	}
+
+	this->width = width;
+	this->height = height;
+
 	hWnd = CreateWindow(
 		WindowClass::GetName(),
 		name,
-		WS_EX_TOPMOST | WS_POPUP,
-		0,
-		0,
-		1920,
-		1080,
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		posX,
+		posY,
+		screenWidth,
+		screenHeight,
 		nullptr,
 		nullptr,
 		WindowClass::GetInstance(),
@@ -75,9 +118,11 @@ Window::Window(const wchar_t* name, bool fullscreen, int height, int width) noex
 	}
 
 	// show window
-	ShowWindow(hWnd, SW_SHOWMAXIMIZED);
+	ShowWindow(hWnd, SW_SHOW);
+	SetForegroundWindow(hWnd);
+	SetFocus(hWnd);
 
-	pGfx = std::make_unique<Graphics>(hWnd);
+	pGfx = std::make_unique<Graphics>(hWnd, 1920, 1080, fullscreen, vsync);
 }
 
 Window::~Window()
@@ -90,9 +135,9 @@ HWND Window::GetWindow()
 	return hWnd;
 }
 
-Graphics& Window::GetGfx()
+Graphics* Window::GetGfx()
 {
-	return *pGfx;
+	return pGfx.get();
 }
 
 LRESULT CALLBACK Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept

@@ -51,14 +51,14 @@ public:
 		const char* GetType() const noexcept override;
 	};
 public:
-	Window(const wchar_t* name, bool fullscreen = true, int height = 450, int width = 800) noexcept(NDEBUG);
+	Window(const wchar_t* name, bool fullscreen = true, int height = 450, int width = 800, bool vsync = true) noexcept(NDEBUG);
 	~Window();
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 	static std::optional<int> ProcessMessages() noexcept;
 
 	HWND GetWindow();
-	Graphics& GetGfx();
+	Graphics* GetGfx();
 private:
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	static LRESULT CALLBACK HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;

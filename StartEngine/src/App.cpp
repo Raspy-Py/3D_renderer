@@ -2,13 +2,20 @@
 
 int App::Run()
 {
-	pWindow = std::make_unique<Window>(L"Window name",true);
-	pGraphics = std::make_unique<Graphics>(pWindow->GetWindow());
-	pRenderer = std::make_unique<Renderer>(pGraphics.get(), L"VertexShader.cso", L"PixelShader.cso");
+	pWindow = std::make_unique<Window>(L"Window name", false, 1920, 1080, false);
+	pRenderer = std::make_unique<Renderer>(pWindow->GetGfx(), L"VertexShader.cso", L"PixelShader.cso");
 
 	pCamera.reset(Camera::GetInstance());
-	//pWindow->mouse.Hide();
+	pWindow->mouse.Hide();
 
+	RECT winRect = {};
+	GetWindowRect(pWindow->GetWindow(), &winRect);
+	POINT newMousePos{
+		(winRect.right - winRect.left) / 2,
+		(winRect.bottom - winRect.top) / 2
+	};
+	lastMousePos = newMousePos;
+	SetCursorPos(newMousePos.x, newMousePos.y);
 
 	while (true)
 	{
@@ -24,37 +31,43 @@ void App::DoFrame()
 {
 	float deltaTime = timer.Mark();
 
+
 	RECT winRect = {};
 	GetWindowRect(pWindow->GetWindow(), &winRect);
-
+	POINT lastMousePos{
+		(winRect.right - winRect.left) / 2,
+		(winRect.bottom - winRect.top) / 2
+	};
 	POINT newMousePos{  };
 	GetCursorPos(&newMousePos);
-	ScreenToClient(pWindow->GetWindow(), &newMousePos);
-	int cx = (winRect.right - winRect.left) / 2;
-	int cy = (winRect.bottom - winRect.top) / 2;
-	POINT deltaMousePos = {newMousePos.x - cx, newMousePos.y - cy};
-	newMousePos = { cx, cy };
-	ClientToScreen(pWindow->GetWindow(), &newMousePos);
+	POINT mouseDelta = {
+		newMousePos.x - lastMousePos.x,
+		newMousePos.y - lastMousePos.y
+	};
+
 	// Controle
 	{
+		float speed = 2.0f;
 		if (pWindow->keyboard.KeyIsPressed('D'))
-			pCamera->StrafeRight(deltaTime);
+			pCamera->StrafeRight(deltaTime * speed);
 		if (pWindow->keyboard.KeyIsPressed('A'))
-			pCamera->StrafeLeft(deltaTime);
+			pCamera->StrafeLeft(deltaTime * speed);
 		if (pWindow->keyboard.KeyIsPressed('W'))
-			pCamera->MoveForward(deltaTime);
+			pCamera->MoveForward(deltaTime * speed);
 		if (pWindow->keyboard.KeyIsPressed('S'))
-			pCamera->MoveBackward(deltaTime);
+			pCamera->MoveBackward(deltaTime * speed);
 		if (pWindow->keyboard.KeyIsPressed(VK_SHIFT))
-			pCamera->MoveDown(deltaTime);
+			pCamera->MoveDown(deltaTime * speed);
 		if (pWindow->keyboard.KeyIsPressed(VK_SPACE))
-			pCamera->MoveUp(deltaTime);
+			pCamera->MoveUp(deltaTime * speed);
 		if (pWindow->keyboard.KeyIsPressed(VK_ESCAPE))
 			PostQuitMessage(0);
 
-
-		//pWindow->mouse.SetPos(newMousePos.x, newMousePos.y);
-
+		if (pWindow->mouse.IsInWindow())
+		{
+			pCamera->AdjustRotation((float)mouseDelta.y * 0.002, (float)mouseDelta.x * 0.002, 0.0f);
+			SetCursorPos(lastMousePos.x, lastMousePos.y); 
+		}
 	}
 
 

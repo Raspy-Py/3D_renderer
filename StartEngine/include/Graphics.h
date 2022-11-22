@@ -6,13 +6,17 @@
 #include "Camera.h"
 
 #include <wrl.h>
+#include <dxgi.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 
+namespace wrl = Microsoft::WRL;
+
 class Graphics
 {
 	friend class Renderer;
+	friend class Bindable;
 public:
 	class Exception : public ExceptionBase
 	{
@@ -50,8 +54,18 @@ public:
 	private:
 		std::string reason;
 	};
+private:
+	struct Parameters
+	{
+		bool isVSyncEnabled;
+		bool isFullScreen;
+		unsigned int screenWidth;
+		unsigned int screenHeight;
+		unsigned int videoCardMemoryMB;
+		char videoCardDescription[128];
+	};
 public:
-	Graphics(HWND hWnd);
+	Graphics(HWND hWnd, unsigned int screenWidth, unsigned int screenHeight, bool fullscreen, bool vsync);
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
 	~Graphics()
@@ -69,23 +83,26 @@ private:
 #if !NDEBUG
 	DxgiInfoManager infoManager;
 #endif
+	
 	/*
-	* Math objects
+	* Hardware parameters and settings
 	*/
+	Parameters params;
 
 	/*
 	* D3D COM objects
 	*/
-	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
+	wrl::ComPtr<IDXGISwapChain> pSwapChain;
 
-	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
+	wrl::ComPtr<ID3D11Device> pDevice;
+	wrl::ComPtr<ID3D11DeviceContext> pDeviceContext;
+	wrl::ComPtr<ID3D11RenderTargetView> pTarget;
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> pDepthStencilBuffer;
+	wrl::ComPtr<ID3D11Texture2D> pBackBuffer;
+	wrl::ComPtr<ID3D11Texture2D> pDepthStencilBuffer;
 
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDepthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> pDepthStencilState;
+	wrl::ComPtr<ID3D11DepthStencilView> pDepthStencilView;
+	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilState;
+	wrl::ComPtr<ID3D11RasterizerState> pRasterState;
 };
 
