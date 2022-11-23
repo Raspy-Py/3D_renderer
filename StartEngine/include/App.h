@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Renderer.h"
 #include "Timer.h"
+#include "Cube.h"
 
 #include <memory>
 #include <exception>
@@ -25,11 +26,12 @@ private:
 	MSG msg;
 	Timer timer;
 	POINT lastMousePos;
+	Camera* pCamera;
+	Graphics* pGraphics;
 
-	std::unique_ptr<Graphics> pGraphics;
+	std::unique_ptr<Cube> pCube;
 	std::unique_ptr<Window> pWindow;
 	std::unique_ptr<Renderer> pRenderer;
 
-	std::shared_ptr<Camera> pCamera;
 };
 

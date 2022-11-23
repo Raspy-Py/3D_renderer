@@ -74,15 +74,17 @@ public:
 	}
 
 	void ClearFrame(float r, float g, float b);
+	void EndFrame();
+	void DrawIndexed(unsigned int count);
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();
 	ID3D11RenderTargetView* GetRenderTarget();
 	IDXGISwapChain* GetSwapChain();
-private:
 #if !NDEBUG
 	DxgiInfoManager infoManager;
 #endif
+private:
 	
 	/*
 	* Hardware parameters and settings

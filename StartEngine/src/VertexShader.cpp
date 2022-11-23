@@ -2,7 +2,7 @@
 
 VertexShader::VertexShader(Graphics* gfx, const wchar_t* shaderFilePath)
 {
-    INFOMAN(*gfx);
+    INFOMAN(gfx);
 
     GFX_THROW_INFO(D3DReadFileToBlob(shaderFilePath, &pBlob));
 

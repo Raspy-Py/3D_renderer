@@ -7,7 +7,7 @@ Renderer::Renderer(Graphics* gfx, const wchar_t* vertexShaderPath, const wchar_t
 	gfx(gfx)
 {
 	pCamera = Camera::GetInstance();
-	INFOMAN(*gfx);
+	INFOMAN(gfx);
 
 	ID3D11Device* pDevice = gfx->GetDevice();
 
@@ -133,6 +133,7 @@ Renderer::~Renderer()
 
 void Renderer::DoFrame(float frameTime)
 {
+	INFOMAN(gfx);
 	ID3D11DeviceContext* pDeviceContext = gfx->GetDeviceContext();
 	const UINT stride = sizeof(Vertex);
 	const UINT offset = 0u;
@@ -163,9 +164,9 @@ void Renderer::DoFrame(float frameTime)
     gfx->GetSwapChain()->Present(1, 0);
 }
 
-DxgiInfoManager& Renderer::GetInfoManager(Graphics& gfx)
+DxgiInfoManager& Renderer::GetInfoManager(Graphics* gfx)
 {
 #if !NDEBUG
-	return gfx.infoManager;
+	return gfx->infoManager;
 #endif
 }

@@ -170,7 +170,8 @@ void Camera::UpdateVectors()
 {
 	XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYawFromVector(GetRotationVector());
 	front = XMVector3Transform(defaultForwardVector, rotationMatrix);
-	up = XMVector3Transform(defaultUpVector, rotationMatrix);
+	//up = XMVector3Transform(defaultUpVector, rotationMatrix);
+	up = defaultUpVector;
 	right = XMVector3Cross(up,front);
 }
 

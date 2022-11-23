@@ -3,10 +3,12 @@
 int App::Run()
 {
 	pWindow = std::make_unique<Window>(L"Window name", false, 1920, 1080, false);
-	pRenderer = std::make_unique<Renderer>(pWindow->GetGfx(), L"VertexShader.cso", L"PixelShader.cso");
-
-	pCamera.reset(Camera::GetInstance());
+	pCamera = Camera::GetInstance();
 	pWindow->mouse.Hide();
+	pCube = std::make_unique<Cube>(pWindow->GetGfx(), 0.0f, 0.0f, 0.0f);
+
+	pCamera->SetProjectionValues(70, 16.f / 9.0f, 0.01f, 1000.0f);
+	pGraphics = pWindow->GetGfx();
 
 	RECT winRect = {};
 	GetWindowRect(pWindow->GetWindow(), &winRect);
@@ -30,7 +32,7 @@ int App::Run()
 void App::DoFrame()
 {
 	float deltaTime = timer.Mark();
-
+	OutputDebugString(L"Debug %d");
 
 	RECT winRect = {};
 	GetWindowRect(pWindow->GetWindow(), &winRect);
@@ -70,6 +72,8 @@ void App::DoFrame()
 		}
 	}
 
-
-	pRenderer->DoFrame(deltaTime);
+	pGraphics->ClearFrame(0.9, 0.3, 0.4);
+	pCube->Draw(pWindow->GetGfx());
+	pGraphics->EndFrame();
+	//pRenderer->DoFrame(deltaTime);
 }

@@ -2,7 +2,7 @@
 
 InputLayout::InputLayout(Graphics* gfx, const std::vector<D3D11_INPUT_ELEMENT_DESC>& layouts, ID3DBlob* blob)
 {
-	INFOMAN(*gfx);
+	INFOMAN(gfx);
 
 	GFX_THROW_INFO(gfx->GetDevice()->CreateInputLayout(
 		layouts.data(), (UINT)layouts.size(),

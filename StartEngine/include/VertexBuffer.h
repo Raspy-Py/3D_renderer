@@ -18,7 +18,7 @@ VertexBuffer::VertexBuffer(Graphics* gfx, const std::vector<Vertex>& vertices)
 	:
 	stride(sizeof(Vertex))
 {
-	INFOMAN(*gfx);
+	INFOMAN(gfx);
 
 	D3D11_BUFFER_DESC vbd = {};
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;

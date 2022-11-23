@@ -272,6 +272,16 @@ void Graphics::ClearFrame(float r, float g, float b)
 	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
 }
 
+void Graphics::EndFrame()
+{
+	pSwapChain->Present(1u, 0);
+}
+
+void Graphics::DrawIndexed(unsigned int count)
+{
+	GFX_THROW_INFO_ONLY(pDeviceContext->DrawIndexed(count, 0u, 0u));
+}
+
 ID3D11Device* Graphics::GetDevice()
 {
 	return pDevice.Get();

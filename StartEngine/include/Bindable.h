@@ -13,10 +13,10 @@ public:
 	virtual void Bind(Graphics* gfx) = 0;
 
 protected:
-	DxgiInfoManager& GetInfoManager(Graphics& gfx)
+	DxgiInfoManager& GetInfoManager(Graphics* gfx)
 	{
 #if !NDEBUG
-		return gfx.infoManager;
+		return gfx->infoManager;
 #endif
 	}
 };

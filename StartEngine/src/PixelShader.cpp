@@ -2,7 +2,7 @@
 
 PixelShader::PixelShader(Graphics* gfx, const wchar_t* shaderFilePath)
 {
-	INFOMAN(*gfx);
+	INFOMAN(gfx);
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 	GFX_THROW_INFO(D3DReadFileToBlob(shaderFilePath, &pBlob));
@@ -17,4 +17,5 @@ PixelShader::PixelShader(Graphics* gfx, const wchar_t* shaderFilePath)
 
 void PixelShader::Bind(Graphics* gfx)
 {
+	gfx->GetDeviceContext()->PSSetShader(pPixelShader.Get(), nullptr, 0);
 }
