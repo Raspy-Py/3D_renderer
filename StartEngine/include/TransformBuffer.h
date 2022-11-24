@@ -1,6 +1,5 @@
 #pragma once
 #include "Bindable.h"
-#include "Camera.h"
 #include "ConstantBuffers.h"
 #include "Drawable.h"
 

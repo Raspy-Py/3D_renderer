@@ -10,53 +10,55 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 
 	struct Vertex
 	{
-		Vertex(float x, float y, float z, float u, float v)
+		Vertex(float x, float y, float z, float u, float v, float nx, float ny, float nz)
 			:
 			position(x, y, z),
-			texCoords(u, v)
+			texCoords(u, v),
+			normal(nx, ny, nz)
 		{}
 
 		XMFLOAT3 position;
 		XMFLOAT2 texCoords;
+		XMFLOAT3 normal;
 	};
 	//vertex data
 	std::vector<Vertex> vertices =
 	{	
 		// front
-		{-1	,1	,-1	,0, 1},
-		{-1	,-1	,-1	,0, 0},
-		{1	,-1	,-1	,1, 0},
-		{1	,1	,-1	,1, 1},
+		{-1	,1	,-1	,0, 1,0,0,-1},
+		{-1	,-1	,-1	,0, 0,0,0,-1},
+		{1	,-1	,-1	,1, 0,0,0,-1},
+		{1	,1	,-1	,1, 1,0,0,-1},
 
 		// top
-		{-1	,1	,1	,0, 1},
-		{-1	,1	,-1	,0, 0},
-		{1	,1	,-1	,1, 0},
-		{1	,1	,1	,1, 1},
+		{-1	,1	,1	,0, 1,1,0,0},
+		{-1	,1	,-1	,0, 0,1,0,0},
+		{1	,1	,-1	,1, 0,1,0,0},
+		{1	,1	,1	,1, 1,1,0,0},
 
 		// bottom
-		{-1	,-1	,-1	,0, 1},
-		{-1	,-1	,1	,0, 0},
-		{1	,-1	,1	,1, 0},
-		{1	,-1	,-1	,1, 1},
+		{-1	,-1	,-1	,0, 1,-1,0,0},
+		{-1	,-1	,1	,0, 0,-1,0,0},
+		{1	,-1	,1	,1, 0,-1,0,0},
+		{1	,-1	,-1	,1, 1,-1,0,0},
 
 		// left
-		{-1	,1	,1	,0, 1},
-		{-1	,-1	,1	,0, 0},
-		{-1	,-1	,-1	,1, 0},
-		{-1	,1	,-1	,1, 1},
+		{-1	,1	,1	,0, 1,-1,0,0},
+		{-1	,-1	,1	,0, 0,-1,0,0},
+		{-1	,-1	,-1	,1, 0,-1,0,0},
+		{-1	,1	,-1	,1, 1,-1,0,0},
 
 		// right
-		{1	,1	,-1	,0, 1},
-		{1	,-1	,-1	,0, 0},
-		{1	,-1	,1	,1, 0},
-		{1	,1	,1	,1, 1},
+		{1	,1	,-1	,0, 1,1,0,0},
+		{1	,-1	,-1	,0, 0,1,0,0},
+		{1	,-1	,1	,1, 0,1,0,0},
+		{1	,1	,1	,1, 1,1,0,0},
 
 		// back
-		{-1	,-1	,1	,0, 1},
-		{-1	,1	,1	,0, 0},
-		{1	,1	,1	,1, 0},
-		{1	,-1	,1	,1, 1}
+		{-1	,-1	,1	,0, 1,0,0,1},
+		{-1	,1	,1	,0, 0,0,0,1},
+		{1	,1	,1	,1, 0,0,0,1},
+		{1	,-1	,1	,1, 1,0,0,1}
 	};
 
 	// indices
@@ -89,8 +91,14 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layouts = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
+
+	Camera* cam = Camera::GetInstance();
+
+	wvp.world = GetTransformXM();
+	wvp.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
 
 	AddBind(std::move(vertexShader));
 	AddBind(std::make_unique<PixelShader>(gfx, L"PixelShader.cso"));
@@ -99,14 +107,24 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(std::make_unique<VertexBuffer>(gfx, vertices));
 	AddBind(std::make_unique<InputLayout>(gfx, layouts, vertexShaderByteCode));
-	AddBind(std::make_unique<TransformBuffer>(gfx, this));
+
+	AddBind(std::make_unique<VertexConstantBuffer<WVP>>(gfx, wvp));
+	//AddBind(std::make_unique<TransformBuffer>(gfx, this));
 
 	AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
 }
 
-void Cube::Update(float frameTime)
+void Cube::Update(Graphics* gfx, float frameTime)
 {
-	//TODO: add some movement
+	Camera* cam = Camera::GetInstance();
+	wvp.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
+	for (const auto& b : binds)
+	{
+		if (const auto p = dynamic_cast<VertexConstantBuffer<WVP>*>(b.get()))
+		{
+			p->Update(gfx, wvp);
+		}
+	}
 }
 
 XMMATRIX Cube::GetTransformXM() const

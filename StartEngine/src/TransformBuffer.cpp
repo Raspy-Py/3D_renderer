@@ -14,11 +14,6 @@ TransformBuffer::TransformBuffer(Graphics* gfx, const Drawable* parent)
 
 void TransformBuffer::Bind(Graphics* gfx)
 {
-	Camera* camera = Camera::GetInstance();
-	pVcbuf->Update(gfx, 
-		parent->GetTransformXM() * 
-		camera->GetViewMatrix() * 
-		camera->GetProjectionMatrix()
-		);
+	pVcbuf->Update(gfx, parent->GetTransformXM());
 	pVcbuf->Bind(gfx);
 }

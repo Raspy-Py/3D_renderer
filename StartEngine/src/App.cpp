@@ -73,6 +73,7 @@ void App::DoFrame()
 	}
 
 	pGraphics->ClearFrame(0.5, 0.4, 1.0);
+	pCube->Update(pWindow->GetGfx(), deltaTime);
 	pCube->Draw(pWindow->GetGfx());
 	pGraphics->EndFrame();
 }
