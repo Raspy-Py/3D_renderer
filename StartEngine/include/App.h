@@ -2,7 +2,6 @@
 #include "CleanWindows.h"
 #include "Window.h"
 #include "Camera.h"
-#include "Renderer.h"
 #include "Timer.h"
 #include "Cube.h"
 
@@ -31,7 +30,5 @@ private:
 
 	std::unique_ptr<Cube> pCube;
 	std::unique_ptr<Window> pWindow;
-	std::unique_ptr<Renderer> pRenderer;
-
 };
 

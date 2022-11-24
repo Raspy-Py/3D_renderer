@@ -1,7 +1,6 @@
 #include "CleanWindows.h"
 #include "Window.h"
 #include "Graphics.h"
-#include "Renderer.h"
 #include "ExceptionBase.h"
 #include "App.h"
 

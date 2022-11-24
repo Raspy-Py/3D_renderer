@@ -15,7 +15,6 @@ namespace wrl = Microsoft::WRL;
 
 class Graphics
 {
-	friend class Renderer;
 	friend class Bindable;
 public:
 	class Exception : public ExceptionBase
@@ -92,18 +91,19 @@ private:
 	Parameters params;
 
 	/*
-	* D3D COM objects
+	* D3D COM objects' interfaces
 	*/
 	wrl::ComPtr<IDXGISwapChain> pSwapChain;
 
 	wrl::ComPtr<ID3D11Device> pDevice;
 	wrl::ComPtr<ID3D11DeviceContext> pDeviceContext;
-	wrl::ComPtr<ID3D11RenderTargetView> pTarget;
 
 	wrl::ComPtr<ID3D11Texture2D> pBackBuffer;
 	wrl::ComPtr<ID3D11Texture2D> pDepthStencilBuffer;
 
+	wrl::ComPtr<ID3D11RenderTargetView> pTarget;
 	wrl::ComPtr<ID3D11DepthStencilView> pDepthStencilView;
+
 	wrl::ComPtr<ID3D11DepthStencilState> pDepthStencilState;
 	wrl::ComPtr<ID3D11RasterizerState> pRasterState;
 };

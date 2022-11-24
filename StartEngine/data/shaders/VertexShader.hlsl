@@ -6,15 +6,15 @@ cbuffer cbPerObject
 struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
-	float4 color : COLOR;
+	float2 texCoord : TEXCOORD;
 };
 
-VS_OUTPUT main(float4 inPos : POSITION, float4 inColor : COLOR)
+VS_OUTPUT main(float3 inPos : POSITION, float2 inTexCoord : TEXCOORD)
 {
 	VS_OUTPUT output;
 
-	output.position = mul(WVP, inPos);
-	output.color = inColor;
+	output.position = mul(WVP, float4(inPos, 1.0));
+	output.texCoord = inTexCoord;
 
 	return output;
 }

@@ -5,6 +5,7 @@
 class Cube : public Drawable
 {
 public:
+	Cube() = default;
 	Cube(Graphics* gfx, float x, float y, float z);
 	void Update(float frameTime) override;
 	~Cube() override = default;

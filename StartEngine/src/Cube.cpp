@@ -7,66 +7,101 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 {
 	auto vertexShader = std::make_unique<VertexShader>(gfx, L"VertexShader.cso");
 	auto vertexShaderByteCode = vertexShader->GetBlob();
-	AddBind(std::move(vertexShader));
-	AddBind(std::make_unique<PixelShader>(gfx, L"PixelShader.cso"));
 
 	struct Vertex
 	{
-		Vertex(float x, float y, float z, float r, float g, float b)
+		Vertex(float x, float y, float z, float u, float v)
 			:
 			position(x, y, z),
-			color(r, g, b)
+			texCoords(u, v)
 		{}
 
 		XMFLOAT3 position;
-		XMFLOAT3 color;
+		XMFLOAT2 texCoords;
 	};
 	//vertex data
 	std::vector<Vertex> vertices =
-	{	// coords				// color
-		{0.5,	-0.5,	0.5,	0.0, 1.0, 0.0}, //  2---1
-		{0.5,	 0.5,	0.5,	0.0, 1.0, 0.0}, //  |\  |
-		{-0.5,	 0.5,	0.5,	0.0, 0.0, 1.0}, //  |  \|
-		{-0.5,	-0.5,	0.5,	0.0, 0.0, 1.0}, //  3---0
+	{	
+		// front
+		{-1	,1	,-1	,0, 1},
+		{-1	,-1	,-1	,0, 0},
+		{1	,-1	,-1	,1, 0},
+		{1	,1	,-1	,1, 1},
 
-		{0.5,	-0.5,	-0.5,	0.0, 1.0, 0.0}, //  6---5
-		{0.5,	 0.5,	-0.5,	0.0, 1.0, 0.0}, //  |\  |
-		{-0.5,	 0.5,	-0.5,	0.0, 0.0, 1.0}, //  |  \|
-		{-0.5,	-0.5,	-0.5,	0.0, 0.0, 1.0}  //  7---4
+		// top
+		{-1	,1	,1	,0, 1},
+		{-1	,1	,-1	,0, 0},
+		{1	,1	,-1	,1, 0},
+		{1	,1	,1	,1, 1},
+
+		// bottom
+		{-1	,-1	,-1	,0, 1},
+		{-1	,-1	,1	,0, 0},
+		{1	,-1	,1	,1, 0},
+		{1	,-1	,-1	,1, 1},
+
+		// left
+		{-1	,1	,1	,0, 1},
+		{-1	,-1	,1	,0, 0},
+		{-1	,-1	,-1	,1, 0},
+		{-1	,1	,-1	,1, 1},
+
+		// right
+		{1	,1	,-1	,0, 1},
+		{1	,-1	,-1	,0, 0},
+		{1	,-1	,1	,1, 0},
+		{1	,1	,1	,1, 1},
+
+		// back
+		{-1	,-1	,1	,0, 1},
+		{-1	,1	,1	,0, 0},
+		{1	,1	,1	,1, 0},
+		{1	,-1	,1	,1, 1}
 	};
 
 	// indices
 	std::vector<uint16_t> indices =
 	{
-		0,1,2, // front
+		// front
+		0,1,2,
 		0,2,3,
 
-		4,5,1, // top
-		4,1,0,
+		// top
+		4,5,6,
+		4,6,7,
 
-		7,6,5, // back
-		7,5,4,
+		// bottom
+		8,9,10,
+		8,10,11,
 
-		3,2,6, // down
-		3,6,7,
+		// left
+		12,13,14,
+		12,14,15,
 
-		1,5,6, // right
-		1,6,2,
+		// right
+		16,17,18,
+		16,18,19,
 
-		4,0,3, // left
-		4,3,7
+		// back
+		20,21,22,
+		20,22,23
 	};
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layouts = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
+	AddBind(std::move(vertexShader));
+	AddBind(std::make_unique<PixelShader>(gfx, L"PixelShader.cso"));
+	AddBind(std::make_unique<Texture>(gfx, L"./data/images/fence_1024.dds"));
+	AddBind(std::make_unique<Sampler>(gfx));
 	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(std::make_unique<VertexBuffer>(gfx, vertices));
-	AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
 	AddBind(std::make_unique<InputLayout>(gfx, layouts, vertexShaderByteCode));
 	AddBind(std::make_unique<TransformBuffer>(gfx, this));
+
+	AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
 }
 
 void Cube::Update(float frameTime)
