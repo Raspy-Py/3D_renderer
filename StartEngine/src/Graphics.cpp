@@ -272,6 +272,11 @@ void Graphics::ClearFrame(float r, float g, float b)
 	pDeviceContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
 }
 
+void Graphics::BeginFrame(float r, float g, float b)
+{
+	ClearFrame(r, g, b);
+}
+
 void Graphics::EndFrame()
 {
 	pSwapChain->Present(1u, 0);

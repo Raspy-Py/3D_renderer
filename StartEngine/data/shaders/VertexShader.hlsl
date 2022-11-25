@@ -16,7 +16,7 @@ VS_OUTPUT main(float3 inPos : POSITION, float2 inTexCoord : TEXCOORD, float3 inN
 	VS_OUTPUT output;
 	float4x4 WVP = mul(world, VP);
 	output.position = mul(WVP, float4(inPos, 1.0));
-	output.normal = mul(world, inNormal);
+    output.normal = mul(world, float4(inNormal, 1.0)).xyz;
 	output.texCoord = inTexCoord;
 
 	return output;

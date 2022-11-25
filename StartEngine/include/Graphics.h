@@ -73,6 +73,7 @@ public:
 	}
 
 	void ClearFrame(float r, float g, float b);
+	void BeginFrame(float r, float g, float b);
 	void EndFrame();
 	void DrawIndexed(unsigned int count);
 

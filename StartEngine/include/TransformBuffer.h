@@ -9,7 +9,7 @@
 class TransformBuffer : public Bindable
 {
 public:
-	TransformBuffer(Graphics* gfx, const Drawable* parent);
+	TransformBuffer(Graphics* gfx, UINT slot, const Drawable* parent);
 	void Bind(Graphics* gfx) override;
 private:
 	static std::unique_ptr<VertexConstantBuffer<XMMATRIX>> pVcbuf;

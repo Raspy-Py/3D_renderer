@@ -2,13 +2,13 @@
 
 std::unique_ptr<VertexConstantBuffer<XMMATRIX>> TransformBuffer::pVcbuf;
 
-TransformBuffer::TransformBuffer(Graphics* gfx, const Drawable* parent)
+TransformBuffer::TransformBuffer(Graphics* gfx, UINT slot, const Drawable* parent)
 	:
 	parent(parent)
 {
 	if (!pVcbuf)
 	{
-		pVcbuf = std::make_unique<VertexConstantBuffer<XMMATRIX>>(gfx);
+		pVcbuf = std::make_unique<VertexConstantBuffer<XMMATRIX>>(gfx, slot);
 	}
 }
 

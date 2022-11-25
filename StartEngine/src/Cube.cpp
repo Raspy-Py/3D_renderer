@@ -108,7 +108,7 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 	AddBind(std::make_unique<VertexBuffer>(gfx, vertices));
 	AddBind(std::make_unique<InputLayout>(gfx, layouts, vertexShaderByteCode));
 
-	AddBind(std::make_unique<VertexConstantBuffer<WVP>>(gfx, wvp));
+	AddBind(std::make_unique<VertexConstantBuffer<WVP>>(gfx, 0, wvp));
 	//AddBind(std::make_unique<TransformBuffer>(gfx, this));
 
 	AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
