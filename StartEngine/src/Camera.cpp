@@ -113,7 +113,7 @@ void Camera::AdjustRotation(const XMVECTOR& rot)
 
 void Camera::AdjustRotation(float x, float y, float z)
 {
-	rot.x = clip(rot.x + x, -90.0f, 90.0f);
+	rot.x = clip(rot.x + x, -(XM_PI / 2.0f), XM_PI / 2.0f);
 	rot.y = wrapAround(rot.y + y, XM_PI);
 	rot.z = wrapAround(rot.z + z, XM_PI);
 	rotVector = XMLoadFloat3(&rot);
@@ -168,18 +168,16 @@ void Camera::MoveBackward(float value)
 
 void Camera::UpdateVectors()
 {
-	XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYawFromVector(GetRotationVector());
+	XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(0.0, rot.y, rot.z);
 	front = XMVector3Transform(defaultForwardVector, rotationMatrix);
-	//up = XMVector3Transform(defaultUpVector, rotationMatrix);
-	up = defaultUpVector;
+	up = XMVector3Transform(defaultUpVector, rotationMatrix);
 	right = XMVector3Cross(up,front);
 }
 
-void Camera::UpdateViewMatrix() //Updates view matrix and also updates the movement vectors
+void Camera::UpdateViewMatrix() 
 {
 	XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
 	XMVECTOR camTarget = XMVector3TransformCoord(defaultForwardVector, camRotationMatrix);
 	camTarget += posVector;
-	XMVECTOR upDir = XMVector3TransformCoord(defaultUpVector, camRotationMatrix);
-	viewMatrix = XMMatrixLookAtLH(posVector, camTarget, upDir);
+	viewMatrix = XMMatrixLookAtLH(posVector, camTarget, up);
 }

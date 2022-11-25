@@ -17,4 +17,3 @@ T wrapAround(T val, T wrval)
 
 	return val;
 }
-
