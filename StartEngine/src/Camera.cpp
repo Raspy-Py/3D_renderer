@@ -113,7 +113,7 @@ void Camera::AdjustRotation(const XMVECTOR& rot)
 
 void Camera::AdjustRotation(float x, float y, float z)
 {
-	rot.x = clip(rot.x + x, -(XM_PI / 2.0f), XM_PI / 2.0f);
+	rot.x = clip(rot.x + x, -(XM_PI / 2.0f - 0.000001f), XM_PI / 2.0f - 0.000001f);
 	rot.y = wrapAround(rot.y + y, XM_PI);
 	rot.z = wrapAround(rot.z + z, XM_PI);
 	rotVector = XMLoadFloat3(&rot);

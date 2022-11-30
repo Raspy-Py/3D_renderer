@@ -5,7 +5,8 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 	:
 	x(x), y(y), z(z)
 {
-	auto vertexShader = std::make_unique<VertexShader>(gfx, L"VertexShader.cso");
+	auto vertexShader = std::make_unique<VertexShader>(gfx, L"PhongLightVS.cso");
+	//auto vertexShader = std::make_unique<VertexShader>(gfx, L"VertexShader.cso");
 	auto vertexShaderByteCode = vertexShader->GetBlob();
 
 	struct Vertex
@@ -31,16 +32,16 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 		{1	,1	,-1	,1, 1,0,0,-1},
 
 		// top
-		{-1	,1	,1	,0, 1,1,0,0},
-		{-1	,1	,-1	,0, 0,1,0,0},
-		{1	,1	,-1	,1, 0,1,0,0},
-		{1	,1	,1	,1, 1,1,0,0},
+		{-1	,1	,1	,0, 1,0,1,0},
+		{-1	,1	,-1	,0, 0,0,1,0},
+		{1	,1	,-1	,1, 0,0,1,0},
+		{1	,1	,1	,1, 1,0,1,0},
 
 		// bottom
-		{-1	,-1	,-1	,0, 1,-1,0,0},
-		{-1	,-1	,1	,0, 0,-1,0,0},
-		{1	,-1	,1	,1, 0,-1,0,0},
-		{1	,-1	,-1	,1, 1,-1,0,0},
+		{-1	,-1	,-1	,0, 1,0,-1,0},
+		{-1	,-1	,1	,0, 0,0,-1,0},
+		{1	,-1	,1	,1, 0,0,-1,0},
+		{1	,-1	,-1	,1, 1,0,-1,0},
 
 		// left
 		{-1	,1	,1	,0, 1,-1,0,0},
@@ -90,39 +91,45 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 	};
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layouts = {
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,	D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL",			0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20,	D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	Camera* cam = Camera::GetInstance();
 
-	wvp.world = GetTransformXM();
-	wvp.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
+	sceneTransform.world = GetTransformXM();
+	sceneTransform.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
+	sceneTransform.camPos = cam->GetPositionFloat3();
 
 	AddBind(std::move(vertexShader));
-	AddBind(std::make_unique<PixelShader>(gfx, L"PixelShader.cso"));
-	AddBind(std::make_unique<Texture>(gfx, L"./data/images/fence_1024.dds"));
-	AddBind(std::make_unique<Sampler>(gfx));
+	AddBind(std::make_unique<PixelShader>(gfx, L"PhongLightPS.cso"));
+	AddBind(std::make_unique<Texture>(gfx, L"./data/images/box_diffuse.dds", 0));
+	AddBind(std::make_unique<Sampler>(gfx, 0));
+	AddBind(std::make_unique<Texture>(gfx, L"./data/images/box_specular.dds", 1));
+	AddBind(std::make_unique<Sampler>(gfx, 1));
+	AddBind(std::make_unique<Texture>(gfx, L"./data/images/box_emissive.dds", 2));
+	AddBind(std::make_unique<Sampler>(gfx, 2));
 	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(std::make_unique<VertexBuffer>(gfx, vertices));
 	AddBind(std::make_unique<InputLayout>(gfx, layouts, vertexShaderByteCode));
 
-	AddBind(std::make_unique<VertexConstantBuffer<WVP>>(gfx, 0, wvp));
-	//AddBind(std::make_unique<TransformBuffer>(gfx, this));
-
+	AddBind(std::make_unique<VertexConstantBuffer<SceneTransform>>(gfx, 0, sceneTransform));
 	AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
 }
 
 void Cube::Update(Graphics* gfx, float frameTime)
 {
 	Camera* cam = Camera::GetInstance();
-	wvp.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
+	sceneTransform.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
+	sceneTransform.camPos = cam->GetPositionFloat3();
+
+	// search for Vertex Constatant Buffer
 	for (const auto& b : binds)
 	{
-		if (const auto p = dynamic_cast<VertexConstantBuffer<WVP>*>(b.get()))
+		if (const auto p = dynamic_cast<VertexConstantBuffer<SceneTransform>*>(b.get()))
 		{
-			p->Update(gfx, wvp);
+			p->Update(gfx, sceneTransform);
 		}
 	}
 }

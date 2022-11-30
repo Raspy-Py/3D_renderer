@@ -84,6 +84,18 @@
     <ClCompile Include="src\DDSTextureLoader11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PointLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AmbientLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DirectionalLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CleanWindows.h">
@@ -173,6 +185,18 @@
     <ClInclude Include="include\DDSTextureLoader11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\PointLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AmbientLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectionalLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\DXGetErrorDescription.inl">
@@ -193,5 +217,7 @@
   <ItemGroup>
     <FxCompile Include="data\shaders\VertexShader.hlsl" />
     <FxCompile Include="data\shaders\PixelShader.hlsl" />
+    <FxCompile Include="data\shaders\PhongLightPS.hlsl" />
+    <FxCompile Include="data\shaders\PhongLightVS.hlsl" />
   </ItemGroup>
 </Project>

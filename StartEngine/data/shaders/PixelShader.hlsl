@@ -1,14 +1,15 @@
-struct VS_OUTPUT
+struct VS_Output
 {
-	float4 position : SV_POSITION;
-	float2 texCoord : TEXCOORD;
-	float3 normal : NORMAL;
+    float4 position : SV_POSITION;
+    float4 worldPosition : WORLD_POSITION;
+    float3 normal : NORMAL;
+    float2 texCoord : TEXCOORD;
 };
 
 Texture2D ObjTexture;
 SamplerState ObjSamplerState;
 
-float4 main(VS_OUTPUT input) : SV_TARGET
+float4 main(VS_Output input) : SV_TARGET
 {
 	float4 albedo = ObjTexture.Sample(ObjSamplerState, float2(1.0, 1.0) - input.texCoord);
 

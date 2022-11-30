@@ -1,6 +1,8 @@
 #include "Sampler.h"
 
-Sampler::Sampler(Graphics* gfx)
+Sampler::Sampler(Graphics* gfx, UINT slot)
+	:
+	slot(slot)
 {
 	D3D11_SAMPLER_DESC sd = {};
 	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -16,5 +18,5 @@ Sampler::Sampler(Graphics* gfx)
 
 void Sampler::Bind(Graphics* gfx)
 {
-	gfx->GetDeviceContext()->PSSetSamplers(0, 1, pSampleState.GetAddressOf());
+	gfx->GetDeviceContext()->PSSetSamplers(slot, 1, pSampleState.GetAddressOf());
 }

@@ -5,10 +5,11 @@
 class Cube : public Drawable
 {
 private:
-	struct WVP
+	struct SceneTransform
 	{
 		XMMATRIX world;
 		XMMATRIX viewProj;
+		XMFLOAT3 camPos;
 	};
 public:
 	Cube() = default;
@@ -22,6 +23,6 @@ private:
 	float y;
 	float z;
 
-	WVP wvp;
+	SceneTransform sceneTransform;
 };
 

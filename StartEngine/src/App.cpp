@@ -10,6 +10,24 @@ int App::Run()
 	pCamera->SetProjectionValues(70, 16.f / 9.0f, 0.01f, 1000.0f);
 	pGraphics = pWindow->GetGfx();
 
+	XMFLOAT3 pPos = { 9.9, 4.0, 0.0, };
+	XMFLOAT3 pColor = { 1.0, 1.0, 1.0 };
+	XMFLOAT3 att = { 1.0, 0.027, 0.0028 };
+	FLOAT pInts = 1.0;
+	FLOAT range = 160;
+	pPointLight = std::make_unique<PointLight>(pWindow->GetGfx(), pPos, pColor, att, pInts, range);
+
+	XMFLOAT3 dir = {4.0, -7.0, 3.0};
+	XMFLOAT3 dColor = { 1.0, 1.0, 1.0 };
+	FLOAT dInts = 0.4;
+	pDirectionalLight = std::make_unique<DirectionalLight>(pWindow->GetGfx(), dir, dColor, dInts);
+
+	XMFLOAT3 aColor = {1.0, 1.0, 1.0,};
+	FLOAT aInts = 0.1;
+	pAmbientLight = std::make_unique<AmbientLight>(pWindow->GetGfx(), aColor, aInts);
+
+
+
 	RECT winRect = {};
 	GetWindowRect(pWindow->GetWindow(), &winRect);
 	POINT newMousePos{
@@ -71,6 +89,8 @@ void App::DoFrame()
 			SetCursorPos(lastMousePos.x, lastMousePos.y); 
 		}
 	}
+	pPointLight->Update(pWindow->GetGfx(), deltaTime);
+	Light::Bind(pWindow->GetGfx());
 
 	pGraphics->ClearFrame(0.5, 0.4, 1.0);
 	pCube->Update(pWindow->GetGfx(), deltaTime);

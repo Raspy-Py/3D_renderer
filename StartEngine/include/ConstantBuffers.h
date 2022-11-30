@@ -32,7 +32,8 @@ public:
 
 		D3D11_SUBRESOURCE_DATA csd = {};
 		csd.pSysMem = &consts;
-		GFX_THROW_INFO(gfx->GetDevice()->CreateBuffer(&cbd, &csd, &pConstantBuffer));
+		ID3D11Device* device = gfx->GetDevice();
+		GFX_THROW_INFO(device->CreateBuffer(&cbd, &csd, &pConstantBuffer));
 	}
 	ConstantBuffer(Graphics* gfx, UINT slot)
 		:

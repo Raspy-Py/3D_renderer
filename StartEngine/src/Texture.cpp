@@ -1,6 +1,8 @@
 #include "Texture.h"
 
-Texture::Texture(Graphics* gfx, const wchar_t* textureFileName)
+Texture::Texture(Graphics* gfx, const wchar_t* textureFileName, UINT slot)
+	:
+	slot(slot)
 {
 	INFOMAN(gfx);
 
@@ -15,5 +17,5 @@ Texture::Texture(Graphics* gfx, const wchar_t* textureFileName)
 
 void Texture::Bind(Graphics* gfx)
 {
-	gfx->GetDeviceContext()->PSSetShaderResources(0, 1, pShaderResourceView.GetAddressOf());
+	gfx->GetDeviceContext()->PSSetShaderResources(slot, 1, pShaderResourceView.GetAddressOf());
 }
