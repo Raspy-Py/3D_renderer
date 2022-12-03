@@ -70,8 +70,8 @@ MaterialParameters GetMaterialParameters(VS_Output input)
     float4 color = modelTextureDiffuse.Sample(modelSamplerStateDiffuse, input.texCoord);
     materialParameters.diffuseColor = color.rgb;
     materialParameters.opacity = color.a; 
-    materialParameters.specularColor = modelTextureSpecular.Sample(modelSamplerStateSpecular, input.texCoord);
-    materialParameters.emissiveColor = modelTextureEmissive.Sample(modelSamplerStateEmissive, input.texCoord);
+    materialParameters.specularColor = (float3)modelTextureSpecular.Sample(modelSamplerStateSpecular, input.texCoord);
+    materialParameters.emissiveColor = (float3)modelTextureEmissive.Sample(modelSamplerStateEmissive, input.texCoord);
     
     // Vertex shader output
     materialParameters.normal = input.normal;

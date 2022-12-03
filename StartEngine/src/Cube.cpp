@@ -1,6 +1,10 @@
 #include "Cube.h"
 #include "BindableBase.h"
 
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+
 Cube::Cube(Graphics* gfx, float x, float y, float z)
 	:
 	x(x), y(y), z(z)
@@ -23,6 +27,8 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 		XMFLOAT3 normal;
 	};
 	//vertex data
+
+
 	std::vector<Vertex> vertices =
 	{	
 		// front

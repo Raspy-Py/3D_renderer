@@ -15,3 +15,8 @@ void Light::Bind(Graphics* gfx)
 {
 	pConstBuffer->Bind(gfx);
 }
+
+Light::Params* Light::GetParams()
+{
+	return &params;
+}

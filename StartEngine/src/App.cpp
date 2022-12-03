@@ -1,7 +1,11 @@
 #include "App.h"
 
+#include "SceneImporter.h"
+
 int App::Run()
 {
+	SceneImporter scene("./data/scenes/skull/12140_Skull_v3_L2.obj");
+
 	pWindow = std::make_unique<Window>(L"Window name", false, 1920, 1080, false);
 	pCamera = Camera::GetInstance();
 	pWindow->mouse.Hide();
