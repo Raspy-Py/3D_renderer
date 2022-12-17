@@ -56,6 +56,7 @@ public:
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 	static std::optional<int> ProcessMessages() noexcept;
+	void ProcessInput(float deltaTime) noexcept;
 
 	HWND GetWindow();
 	Graphics* GetGfx();

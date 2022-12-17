@@ -1,6 +1,7 @@
 #pragma once
 #include <queue>
 #include <optional>
+#include <utility>
 
 class Mouse
 {
@@ -66,7 +67,6 @@ public:
 	Mouse(const Mouse&) = delete;
 	Mouse& operator=(const Mouse&) = delete;
 	std::pair<int, int> GetPos() const noexcept;
-	std::pair<int, int> GetPosLocal() const noexcept;
 	int GetPosX() const noexcept;
 	int GetPosY() const noexcept;
 	
@@ -76,6 +76,10 @@ public:
 	bool IsInWindow() const noexcept;
 	bool LeftIsPressed() const noexcept;
 	bool RightIsPressed() const noexcept;
+	std::pair<int, int> GetDeltaAndReset();
+	void SetFirstPersonModeEnabled(int xFixed, int yFixed);
+	void SetFirstPersonModeDisabled();
+	bool GetFirstPersonModeEnabled();
 	std::optional<Mouse::Event> Read() noexcept;
 	bool IsEmpty() const noexcept
 	{
@@ -96,10 +100,11 @@ private:
 	void OnWheelDelta(int x, int y, int delta) noexcept;
 private:
 	static constexpr unsigned int bufferSize = 16u;
+	int xDefault = 0;
+	int yDefault = 0;
 	int x = 0;
 	int y = 0;
-	int localX = 0;
-	int localY = 0;
+	bool firstPersonMode = false;
 	bool leftIsPressed = false;
 	bool rightIsPressed = false;
 	bool isInWindow = false;

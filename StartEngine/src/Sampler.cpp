@@ -11,7 +11,7 @@ Sampler::Sampler(Graphics* gfx, UINT slot)
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sd.MinLOD = 0;
-	sd.MaxLOD = D3D11_FLOAT32_MAX;
+	sd.MaxLOD = 0;
 
 	gfx->GetDevice()->CreateSamplerState(&sd, &pSampleState);
 }

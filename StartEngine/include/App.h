@@ -20,8 +20,8 @@ class App
 {
 
 public:
-	App() = default;
-	~App() = default;
+	App();
+	~App();
 
 	int Run();
 
@@ -33,7 +33,6 @@ private:
 	Timer timer;
 	POINT lastMousePos;
 	Camera* pCamera;
-	Graphics* pGraphics;
 
 	std::unique_ptr<Cube> pCube;
 	std::unique_ptr<PointLight> pPointLight;

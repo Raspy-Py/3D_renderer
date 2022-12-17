@@ -20,3 +20,8 @@ Light::Params* Light::GetParams()
 {
 	return &params;
 }
+
+void Light::Update(Graphics* gfx)
+{
+	pConstBuffer->Update(gfx, Light::params);
+}

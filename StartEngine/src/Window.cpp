@@ -4,9 +4,16 @@
 #include <sstream>
 #include <iostream>
 
+#include <imgui_impl_win32.h>
+#include <imgui.h>
+
+#include "Camera.h"
+
 /*
 * WINDOW CLASS
 */
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 Window::WindowClass Window::WindowClass::wndClass;
 
@@ -26,18 +33,7 @@ Window::WindowClass::WindowClass() noexcept
 {
 	// register class
 	WNDCLASSEX wc = {};
-	/*wc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
-	wc.cbSize = sizeof(wc);
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = HandleMsgSetup;
-	wc.cbWndExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = GetInstance();
-	wc.hCursor = nullptr;
-	wc.hIcon = nullptr;
-	wc.hbrBackground = nullptr;
-	wc.lpszMenuName = nullptr;
-	wc.lpszClassName = GetName();*/
+
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = HandleMsgSetup;
 	wc.cbClsExtra = 0;
@@ -162,6 +158,12 @@ LRESULT CALLBACK Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+	{
+		return 0;
+	}
+
+
 	switch (msg)
 	{
 		// we don't want the DefProc to handle this message because
@@ -303,11 +305,62 @@ std::optional<int> Window::ProcessMessages() noexcept
 		// TranslateMessage will post auxilliary WM_CHAR messages from key msgs
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
+
 	}
 
 	// return empty optional when not quitting app
 	return {};
 }
+void Window::ProcessInput(float deltaTime) noexcept
+{
+	auto pCamera = Camera::GetInstance();
+	float speed = 2.0f;
+	float sensitivity = 0.002;
+
+	if (keyboard.KeyIsPressed('D') && !keyboard.GetMenuModeEnabled())
+		pCamera->StrafeRight(deltaTime * speed);
+	if (keyboard.KeyIsPressed('A') && !keyboard.GetMenuModeEnabled())
+		pCamera->StrafeLeft(deltaTime * speed);
+	if (keyboard.KeyIsPressed('W') && !keyboard.GetMenuModeEnabled())
+		pCamera->MoveForward(deltaTime * speed);
+	if (keyboard.KeyIsPressed('S') && !keyboard.GetMenuModeEnabled())
+		pCamera->MoveBackward(deltaTime * speed);
+	if (keyboard.KeyIsPressed(VK_SHIFT) && !keyboard.GetMenuModeEnabled())
+		pCamera->MoveDown(deltaTime * speed);
+	if (keyboard.KeyIsPressed(VK_SPACE) && !keyboard.GetMenuModeEnabled())
+		pCamera->MoveUp(deltaTime * speed);
+	if (keyboard.KeyIsPressed(VK_ESCAPE))
+		PostQuitMessage(0);
+
+	if (keyboard.KeyIsJustPressed(VK_TAB))
+	{
+		if (mouse.GetFirstPersonModeEnabled())
+		{
+			keyboard.SetMenuModeEnabled(true);
+			mouse.SetFirstPersonModeDisabled();
+		}
+		else
+		{
+			keyboard.SetMenuModeEnabled(false);
+			RECT winRect = {};
+			GetWindowRect(GetWindow(), &winRect);
+			POINT centre{
+				(winRect.right - winRect.left) / 2,
+				(winRect.bottom - winRect.top) / 2
+			};
+			mouse.SetFirstPersonModeEnabled(centre.x, centre.y);
+		}
+	}
+	
+	if (mouse.IsInWindow())
+	{
+		auto mouseDelta = mouse.GetDeltaAndReset();
+		pCamera->AdjustRotation((float)mouseDelta.second * sensitivity, (float)mouseDelta.first * sensitivity, 0.0f);
+	}
+
+	keyboard.Update();
+}
+
 /*
 * EXCEPTIONS
 */

@@ -37,6 +37,7 @@ public:
 	Light(Graphics* gfx);
 
 	static void Bind(Graphics* gfx);
+	static void Update(Graphics* gfx);
 	static Params* GetParams();
 protected:
 	static Params params;

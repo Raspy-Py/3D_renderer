@@ -165,6 +165,28 @@ void Camera::MoveBackward(float value)
 	UpdateViewMatrix();
 }
 
+void Camera::LookAt(float x, float y, float z)
+{
+	XMVECTOR ox = XMVectorSet(x, y, z, 0);
+	XMVECTOR oy = XMVectorSet(x, 0, z, 0);
+	XMVECTOR oz = XMVectorSet(x, y, 0, 0);
+
+	XMVECTOR of = XMVectorSet(x, y, z, 0);
+
+	XMFLOAT3 rotX = {};
+	XMStoreFloat3(&rotX, XMVector3Dot(ox, of));
+	XMFLOAT3 rotY = {};
+	XMStoreFloat3(&rotY, XMVector3Dot(oy, of));
+	XMFLOAT3 rotZ = {};
+	XMStoreFloat3(&rotZ, XMVector3Dot(oz, of));
+
+	rot.x = rotX.x;
+	rot.y = rotY.x;
+	rot.z = rotZ.x;
+	UpdateVectors();
+	UpdateVectors();
+}
+
 
 void Camera::UpdateVectors()
 {

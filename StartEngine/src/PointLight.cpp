@@ -16,6 +16,6 @@ void PointLight::Update(Graphics* gfx, float frameTime)
 {
 	globalTime += frameTime;
 	Light::params.point.pos.x = cos(globalTime * 3.0) * 10.0;
-	//Light::params.point.pos.z = sin(globalTime * 3.0) * 10.0;
+	Light::params.point.pos.z = sin(globalTime * 3.0) * 10.0;
 	pConstBuffer->Update(gfx, Light::params);
 }

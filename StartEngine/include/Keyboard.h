@@ -43,19 +43,24 @@ public:
 	Keyboard& operator=(const Keyboard&) = delete;
 	// key event stuff
 	bool KeyIsPressed(unsigned char keycode) const noexcept;
+	bool KeyIsJustPressed(unsigned char keycode) const noexcept;
 	std::optional<Event> ReadKey() noexcept;
 	bool KeyIsEmpty() const noexcept;
 	void FlushKey() noexcept;
+	void Update();
 	// char event stuff
 	std::optional<char> ReadChar() noexcept;
 	bool CharIsEmpty() const noexcept;
 	void FlushChar() noexcept;
 	void Flush() noexcept;
 	// autorepeat control
+	bool GetMenuModeEnabled();
+	void SetMenuModeEnabled(bool flag) noexcept;
 	void EnableAutorepeat() noexcept;
 	void DisableAutorepeat() noexcept;
 	bool AutorepeatIsEnabled() const noexcept;
 private:
+	void SwapKeyStateBuffer();
 	void OnKeyPressed(unsigned char keycode) noexcept;
 	void OnKeyReleased(unsigned char keycode) noexcept;
 	void OnChar(char character) noexcept;
@@ -65,8 +70,10 @@ private:
 private:
 	static constexpr unsigned int nKeys = 256u;
 	static constexpr unsigned int bufferSize = 16u;
+	bool inMenu = false;
 	bool autorepeatEnabled = false;
-	std::bitset<nKeys> keystates;
+	uint8_t frontKeyState = 0;
+	std::bitset<nKeys> keystates[2];
 	std::queue<Event> keybuffer;
 	std::queue<char> charbuffer;
 };

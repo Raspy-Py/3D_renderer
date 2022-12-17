@@ -36,6 +36,8 @@ public:
 	void MoveDown(float value);
 	void MoveForward(float value);
 	void MoveBackward(float value);
+
+	void LookAt(float x, float y, float z);
 private:
 	Camera();
 	void UpdateVectors();

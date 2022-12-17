@@ -10,12 +10,14 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 	x(x), y(y), z(z)
 {
 	auto vertexShader = std::make_unique<VertexShader>(gfx, L"PhongLightVS.cso");
-	//auto vertexShader = std::make_unique<VertexShader>(gfx, L"VertexShader.cso");
 	auto vertexShaderByteCode = vertexShader->GetBlob();
 
 	struct Vertex
 	{
-		Vertex(float x, float y, float z, float u, float v, float nx, float ny, float nz)
+		Vertex(
+			float x, float y, float z, 
+			float u, float v, 
+			float nx, float ny, float nz)
 			:
 			position(x, y, z),
 			texCoords(u, v),
@@ -26,9 +28,46 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 		XMFLOAT2 texCoords;
 		XMFLOAT3 normal;
 	};
-	//vertex data
+	// Importing model
 
+	Assimp::Importer importer;
 
+	const aiScene* scene = importer.ReadFile("./data/scenes/skull/skull.obj",
+		aiProcess_Triangulate | 
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_PreTransformVertices
+	);
+	std::vector<uint16_t> indices;
+	std::vector<Vertex> vertices;
+
+	for (int n = 0; n < 1; n++)
+	{
+		const auto mesh = scene->mMeshes[0];
+
+		float scale = 0.02;
+
+		for (int i = 0; i < mesh->mNumVertices; i++)
+		{
+			const auto& vertex = mesh->mVertices[i];
+			const auto& texCoord = mesh->mTextureCoords[0][i];
+			const auto& normal = mesh->mNormals[i];
+			vertices.push_back({
+					vertex.x * scale,vertex.y * scale,vertex.z * scale,
+					texCoord.x,texCoord.y,
+					normal.x, normal.y,	normal.z,
+				});
+		}
+
+		for (int i = 0; i < mesh->mNumFaces; i++)
+		{
+			const auto& face = mesh->mFaces[i];
+			indices.push_back(face.mIndices[0]);
+			indices.push_back(face.mIndices[1]);
+			indices.push_back(face.mIndices[2]);
+		}
+
+	}
+/*
 	std::vector<Vertex> vertices =
 	{	
 		// front
@@ -95,7 +134,7 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 		20,21,22,
 		20,22,23
 	};
-
+*/
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layouts = {
 		{"POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -110,12 +149,10 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 
 	AddBind(std::move(vertexShader));
 	AddBind(std::make_unique<PixelShader>(gfx, L"PhongLightPS.cso"));
-	AddBind(std::make_unique<Texture>(gfx, L"./data/images/box_diffuse.dds", 0));
+	AddBind(std::make_unique<Texture>(gfx, L"./data/scenes/skull/skull.dds", 0));
 	AddBind(std::make_unique<Sampler>(gfx, 0));
-	AddBind(std::make_unique<Texture>(gfx, L"./data/images/box_specular.dds", 1));
+	AddBind(std::make_unique<Texture>(gfx, L"./data/images/test_surface.dds", 1));
 	AddBind(std::make_unique<Sampler>(gfx, 1));
-	AddBind(std::make_unique<Texture>(gfx, L"./data/images/box_emissive.dds", 2));
-	AddBind(std::make_unique<Sampler>(gfx, 2));
 	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(std::make_unique<VertexBuffer>(gfx, vertices));
 	AddBind(std::make_unique<InputLayout>(gfx, layouts, vertexShaderByteCode));
@@ -129,6 +166,7 @@ void Cube::Update(Graphics* gfx, float frameTime)
 	Camera* cam = Camera::GetInstance();
 	sceneTransform.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
 	sceneTransform.camPos = cam->GetPositionFloat3();
+	sceneTransform.world = GetTransformXM();
 
 	// search for Vertex Constatant Buffer
 	for (const auto& b : binds)
@@ -142,5 +180,5 @@ void Cube::Update(Graphics* gfx, float frameTime)
 
 XMMATRIX Cube::GetTransformXM() const
 {
-	return XMMatrixTranslation(x,y,z);
+	return XMMatrixTranslation(x, y, z) * XMMatrixRotationRollPitchYaw(-XM_PI / 2.0f, 0, 0);
 }

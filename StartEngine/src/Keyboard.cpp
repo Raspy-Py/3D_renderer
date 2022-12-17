@@ -2,7 +2,12 @@
 
 bool Keyboard::KeyIsPressed(unsigned char keycode) const noexcept
 {
-	return keystates[keycode];
+	return keystates[frontKeyState][keycode];
+}
+
+bool Keyboard::KeyIsJustPressed(unsigned char keycode) const noexcept
+{
+	return keystates[frontKeyState][keycode] && !keystates[(frontKeyState+1)%2][keycode];
 }
 
 std::optional<Keyboard::Event> Keyboard::ReadKey() noexcept
@@ -42,6 +47,11 @@ void Keyboard::FlushKey() noexcept
 	keybuffer = std::queue<Event>();
 }
 
+void Keyboard::Update()
+{
+	SwapKeyStateBuffer();
+}
+
 void Keyboard::FlushChar() noexcept
 {
 	charbuffer = std::queue<char>();
@@ -51,6 +61,16 @@ void Keyboard::Flush() noexcept
 {
 	FlushKey();
 	FlushChar();
+}
+
+bool Keyboard::GetMenuModeEnabled()
+{
+	return inMenu;
+}
+
+void Keyboard::SetMenuModeEnabled(bool flag) noexcept
+{
+	inMenu = flag;
 }
 
 void Keyboard::EnableAutorepeat() noexcept
@@ -68,16 +88,22 @@ bool Keyboard::AutorepeatIsEnabled() const noexcept
 	return autorepeatEnabled;
 }
 
+void Keyboard::SwapKeyStateBuffer()
+{
+	frontKeyState = (frontKeyState + 1) % 2;
+	keystates[frontKeyState] = keystates[(frontKeyState + 1) % 2];
+}
+
 void Keyboard::OnKeyPressed(unsigned char keycode) noexcept
 {
-	keystates[keycode] = true;
+	keystates[frontKeyState][keycode] = true;
 	keybuffer.push(Keyboard::Event(Keyboard::Event::Type::Press, keycode));
 	TrimBuffer(keybuffer);
 }
 
 void Keyboard::OnKeyReleased(unsigned char keycode) noexcept
 {
-	keystates[keycode] = false;
+	keystates[frontKeyState][keycode] = false;
 	keybuffer.push(Keyboard::Event(Keyboard::Event::Type::Release, keycode));
 	TrimBuffer(keybuffer);
 }
@@ -90,7 +116,7 @@ void Keyboard::OnChar(char character) noexcept
 
 void Keyboard::ClearState() noexcept
 {
-	keystates.reset();
+	keystates[frontKeyState].reset();
 }
 
 template<typename T>

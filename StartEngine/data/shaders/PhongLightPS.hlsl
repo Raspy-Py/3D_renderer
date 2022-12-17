@@ -62,15 +62,23 @@ SamplerState modelSamplerStateSpecular  : register(s1);
 Texture2D modelTextureEmissive          : register(t2);
 SamplerState modelSamplerStateEmissive  : register(s2);
 
+float4 GetUnlit(VS_Output input)
+{
+    return modelTextureSpecular.Sample(modelSamplerStateSpecular, input.texCoord);
+    return modelTextureDiffuse.Sample(modelSamplerStateDiffuse, input.texCoord);
+}
+
 MaterialParameters GetMaterialParameters(VS_Output input)
 {
     MaterialParameters materialParameters;
     
     // Color
     float4 color = modelTextureDiffuse.Sample(modelSamplerStateDiffuse, input.texCoord);
-    materialParameters.diffuseColor = color.rgb;
+    //float4 color = modelTextureSpecular.Sample(modelSamplerStateSpecular, input.texCoord);
+    materialParameters.diffuseColor = float3(1.0, 1.0, 0.94);
+    //materialParameters.diffuseColor = color.rgb;
     materialParameters.opacity = color.a; 
-    materialParameters.specularColor = (float3)modelTextureSpecular.Sample(modelSamplerStateSpecular, input.texCoord);
+    materialParameters.specularColor = float3(1.0, 1.0, 1.0); //(float3) modelTextureSpecular.Sample(modelSamplerStateSpecular, input.texCoord);
     materialParameters.emissiveColor = (float3)modelTextureEmissive.Sample(modelSamplerStateEmissive, input.texCoord);
     
     // Vertex shader output
@@ -106,16 +114,15 @@ float3 CalculateDiffuseColor(MaterialParameters material, PointLight pointLight,
     
     float3 pointLightComponent = dot(material.normal, lightDirection);
     pointLightComponent *= CalculateBrightness(pointLight, distanceToPointLight);
-    pointLightComponent *= material.diffuseColor * pointLight.color;
     
-    float3 result = saturate(pointLightComponent);
+    float3 result = saturate(pointLightComponent) * material.diffuseColor * pointLight.color;
     
     // Directional light
     lightDirection = normalize(directionalLight.direction);
-    result += saturate(max(0.0f, dot(material.normal, -lightDirection)) * directionalLight.intensity * material.diffuseColor);
+    result += saturate(max(0.0f, dot(material.normal, -lightDirection)) * directionalLight.intensity) * material.diffuseColor * directionalLight.color;
     
     // Ambient light
-    result += saturate(material.diffuseColor * ambientLight.color * ambientLight.intensity);
+    //result += material.diffuseColor * ambientLight.color * ambientLight.intensity;
     
     return result;
 }
@@ -124,18 +131,26 @@ float3 CalculateDiffuseColor(MaterialParameters material, PointLight pointLight,
 float3 CalculateSpecularColor(MaterialParameters material, PointLight pointLight, DirectionalLight directionalLight, float3 cameraPos)
 {
     // Point light specular
-    float3 lightDir = pointLight.position - material.worldPosition.rgb;
+    float3 lightDir = pointLight.position - material.worldPosition.xyz;
     float distToLight = length(lightDir);
     lightDir /= distToLight;
-    float3 reflectedLightDir = reflect(lightDir, material.normal); // ok
+    float3 reflectedLightDir = reflect(-lightDir, material.normal); // ok
     float3 toCameraDir = normalize(cameraPos - material.worldPosition.rgb);
     
     float reflectedToCameraDot = max(dot(reflectedLightDir, toCameraDir), 0.0);
-    float lightPower = pow(reflectedToCameraDot, 32.0) * CalculateBrightness(pointLight, distToLight);
+    float lightPower = pow(reflectedToCameraDot, 8.0) * CalculateBrightness(pointLight, distToLight);
     
-    float result = lightPower * material.specularColor;
+    float3 result = saturate(lightPower) * material.specularColor * pointLight.color;
     
-    return saturate(result);
+    // Directional light specular
+    lightDir = normalize(directionalLight.direction);
+    reflectedLightDir = reflect(lightDir, material.normal);
+    reflectedToCameraDot = max(dot(reflectedLightDir, toCameraDir), 0.0);
+    lightPower = pow(reflectedToCameraDot, 16.0);
+    
+    result += saturate(lightPower) * material.specularColor * directionalLight.color;
+    
+    return result;
 }
 
 float3 CalculateEmissiveColor(MaterialParameters material)
@@ -145,6 +160,7 @@ float3 CalculateEmissiveColor(MaterialParameters material)
 
 float4 main(VS_Output input) : SV_TARGET
 {
+ 
     MaterialParameters materialParameters = GetMaterialParameters(input);
     
     clip(materialParameters.opacity - .01);
@@ -155,7 +171,9 @@ float4 main(VS_Output input) : SV_TARGET
     outColor.rgb += CalculateSpecularColor(materialParameters, pointLight, directionalLight, input.cameraPos);
     outColor.rgb += CalculateEmissiveColor(materialParameters);
     
-    //outColor = gamma(outColor);
+    outColor = gamma(outColor);
     
+    
+    //return GetUnlit(input);
     return outColor;
 }

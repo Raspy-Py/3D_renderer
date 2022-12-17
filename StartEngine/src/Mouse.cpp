@@ -46,6 +46,51 @@ bool Mouse::RightIsPressed() const noexcept
 	return rightIsPressed;
 }
 
+std::pair<int, int> Mouse::GetDeltaAndReset()
+{
+	if (!firstPersonMode)
+	{
+		return { 0, 0 };
+	}
+
+	POINT newMousePos = {};
+	GetCursorPos(&newMousePos);
+	
+	std::pair<int, int> delta = {
+		newMousePos.x - xDefault,
+		newMousePos.y - yDefault
+	};
+
+	newMousePos.x = xDefault;
+	newMousePos.y = yDefault;
+
+	SetCursorPos(xDefault, yDefault);
+	x = xDefault;
+	y = yDefault;
+
+	return delta;
+}
+
+void Mouse::SetFirstPersonModeEnabled(int xFixed, int yFixed)
+{
+	SetCursorPos(xFixed, yFixed);
+
+	x = xDefault = xFixed;
+	y = yDefault = yFixed;	
+	firstPersonMode = true;
+}
+
+void Mouse::SetFirstPersonModeDisabled()
+{
+	Show();
+	firstPersonMode = false;
+}
+
+bool Mouse::GetFirstPersonModeEnabled()
+{
+	return firstPersonMode;
+}
+
 std::optional<Mouse::Event> Mouse::Read() noexcept
 {
 	if (buffer.size() > 0u)

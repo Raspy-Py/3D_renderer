@@ -22,11 +22,11 @@ VS_Output main(
 {
     VS_Output output;
     
-    output.position = mul(mul(world, viewProj), float4(inPos, 1.0));
+    output.position = mul(mul(viewProj, world), float4(inPos, 1.0));
     output.worldPosition = mul(world, float4(inPos, 1.0));
     output.normal = mul((float3x3)world, inNormal);
-    output.cameraPos = mul((float3x3) world, cameraPos);
-    output.texCoord = inTexCoord;
+    output.cameraPos = cameraPos;
+    output.texCoord = float2(1.0, 1.0) - inTexCoord;
     
     return output;
 }

@@ -169,7 +169,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\SceneImporter.cpp" />
     <ClCompile Include="src\PointLightMarker.cpp" />
     <ClCompile Include="src\AmbientLight.cpp" />
@@ -238,6 +239,7 @@
     <ClInclude Include="include\SceneImporter.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />
+    <ClInclude Include="include\Node.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\DXGetErrorDescription.inl" />
