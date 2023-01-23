@@ -46,7 +46,7 @@ struct VS_Output
     float2 texCoord      : TEXCOORD;
 };
 
-cbuffer LightCB
+cbuffer LightCB : register(b2)
 {
     PointLight pointLight;
     DirectionalLight directionalLight;

@@ -16,7 +16,7 @@ Graphics::Graphics(HWND hWnd, unsigned int screenWidth, unsigned int screenHeigh
 	params.isFullScreen = fullscreen;
 	HRESULT hr;
 
-	unsigned int numModes = 0, i, numerator, denominator;
+	unsigned int numModes = 0, numerator = 0, denominator = 1;
 
 	// Store the vsync setting.
 	params.isVSyncEnabled = vsync;
@@ -44,7 +44,7 @@ Graphics::Graphics(HWND hWnd, unsigned int screenWidth, unsigned int screenHeigh
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for(i=0; i<numModes; i++)
+	for(int i=0; i<numModes; i++)
 	{
 		if(displayModeList[i].Width == screenWidth)
 		{
@@ -153,7 +153,7 @@ Graphics::Graphics(HWND hWnd, unsigned int screenWidth, unsigned int screenHeigh
 
 	D3D11_RASTERIZER_DESC rasterDesc = {};
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
@@ -285,6 +285,12 @@ void Graphics::EndFrame()
 void Graphics::DrawIndexed(unsigned int count)
 {
 	GFX_THROW_INFO_ONLY(pDeviceContext->DrawIndexed(count, 0u, 0u));
+}
+
+void Graphics::DrawIndexed(unsigned int count, unsigned int baseIndex, unsigned int baseVertex)
+{
+	GFX_THROW_INFO_ONLY(pDeviceContext->Draw(count, baseVertex));
+	//GFX_THROW_INFO_ONLY(pDeviceContext->DrawIndexed(count, baseIndex, baseVertex));
 }
 
 ID3D11Device* Graphics::GetDevice()

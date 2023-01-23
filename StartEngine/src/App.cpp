@@ -3,12 +3,16 @@
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
 #include <imgui.h>
+
 #include "SceneImporter.h"
 
 App::App()
 {
 	pWindow = std::make_unique<Window>(L"Window name", false, 1920, 1080, false);
-	pCube = std::make_unique<Cube>(pWindow->GetGfx(), 0.0f, 0.0f, 0.0f);
+	pModel = std::make_unique<Model>(pWindow->GetGfx(), 
+		"./data/scenes/muro/muro.obj", 
+		L"PhongLightVS.cso",
+		L"PhongLightPS.cso");
 	pCamera = Camera::GetInstance();
 	pCamera->SetProjectionValues(70, 16.f / 9.0f, 0.01f, 1000.0f);
 	pCamera->SetPosition(3.0f, 2.0f, -3.0f);
@@ -31,7 +35,7 @@ App::App()
 	pDirectionalLight = std::make_unique<DirectionalLight>(pWindow->GetGfx(), dir, dColor, dInts);
 
 	XMFLOAT3 aColor = { 1.0, 1.0, 1.0 };
-	FLOAT aInts = 0.001;
+	FLOAT aInts = 0.1;
 	pAmbientLight = std::make_unique<AmbientLight>(pWindow->GetGfx(), aColor, aInts);
 }
 
@@ -83,8 +87,7 @@ void App::DoFrame()
 	pWindow->GetGfx()->ClearFrame(0, 0, 0.01);
 
 	// Drawing D3D stuff
-	pCube->Update(pWindow->GetGfx(), deltaTime);
-	pCube->Draw(pWindow->GetGfx());
+	pModel->Draw(pWindow->GetGfx());
 
 	// Drawing ImGui stuff
 	ImGui::Render();

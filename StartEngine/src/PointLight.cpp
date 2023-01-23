@@ -9,7 +9,7 @@ PointLight::PointLight(Graphics* gfx, const XMFLOAT3& pos, const XMFLOAT3& color
 
 void PointLight::Draw(Graphics* gfx) const noexcept
 {
- // TODO: add some indacator for light pos
+ // TODO: add some indicator for light pos
 }
 
 void PointLight::Update(Graphics* gfx, float frameTime)

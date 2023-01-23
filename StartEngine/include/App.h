@@ -7,7 +7,7 @@
 #include "Timer.h"
 
 // Scene
-#include "Cube.h"
+#include "Model.h"
 #include "PointLight.h"
 #include "DirectionalLight.h"
 #include "AmbientLight.h"
@@ -34,7 +34,7 @@ private:
 	POINT lastMousePos;
 	Camera* pCamera;
 
-	std::unique_ptr<Cube> pCube;
+	std::unique_ptr<Model> pModel;
 	std::unique_ptr<PointLight> pPointLight;
 	std::unique_ptr<DirectionalLight> pDirectionalLight;
 	std::unique_ptr<AmbientLight> pAmbientLight;

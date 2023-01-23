@@ -32,11 +32,10 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 
 	Assimp::Importer importer;
 
-	const aiScene* scene = importer.ReadFile("./data/scenes/skull/skull.obj",
-		aiProcess_Triangulate | 
-		aiProcess_JoinIdenticalVertices |
-		aiProcess_PreTransformVertices
-	);
+	const aiScene* scene = importer.ReadFile("./data/scenes/alien/alien.obj",
+		aiProcess_Triangulate |
+		aiProcess_JoinIdenticalVertices);
+
 	std::vector<uint16_t> indices;
 	std::vector<Vertex> vertices;
 
@@ -65,7 +64,6 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 			indices.push_back(face.mIndices[1]);
 			indices.push_back(face.mIndices[2]);
 		}
-
 	}
 /*
 	std::vector<Vertex> vertices =
@@ -135,7 +133,8 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 		20,22,23
 	};
 */
-	std::vector<D3D11_INPUT_ELEMENT_DESC> layouts = {
+	std::vector<D3D11_INPUT_ELEMENT_DESC> layouts = 
+	{
 		{"POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"NORMAL",			0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20,	D3D11_INPUT_PER_VERTEX_DATA, 0}
@@ -143,14 +142,14 @@ Cube::Cube(Graphics* gfx, float x, float y, float z)
 
 	Camera* cam = Camera::GetInstance();
 
-	sceneTransform.world = GetTransformXM();
+	sceneTransform.world = XMMatrixIdentity();
 	sceneTransform.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
 	sceneTransform.camPos = cam->GetPositionFloat3();
 
 	AddBind(std::move(vertexShader));
 	AddBind(std::make_unique<PixelShader>(gfx, L"PhongLightPS.cso"));
-	AddBind(std::make_unique<Texture>(gfx, L"./data/scenes/skull/skull.dds", 0));
-	AddBind(std::make_unique<Sampler>(gfx, 0));
+	//AddBind(std::make_unique<Texture>(gfx, L"./data/scenes/alien/alien.dds", 0));
+	//AddBind(std::make_unique<Sampler>(gfx, 0));
 	AddBind(std::make_unique<Texture>(gfx, L"./data/images/test_surface.dds", 1));
 	AddBind(std::make_unique<Sampler>(gfx, 1));
 	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
@@ -166,9 +165,9 @@ void Cube::Update(Graphics* gfx, float frameTime)
 	Camera* cam = Camera::GetInstance();
 	sceneTransform.viewProj = cam->GetViewMatrix() * cam->GetProjectionMatrix();
 	sceneTransform.camPos = cam->GetPositionFloat3();
-	sceneTransform.world = GetTransformXM();
+	sceneTransform.world = XMMatrixIdentity();
 
-	// search for Vertex Constatant Buffer
+	// search for Vertex Constant Buffer
 	for (const auto& b : binds)
 	{
 		if (const auto p = dynamic_cast<VertexConstantBuffer<SceneTransform>*>(b.get()))
@@ -176,9 +175,4 @@ void Cube::Update(Graphics* gfx, float frameTime)
 			p->Update(gfx, sceneTransform);
 		}
 	}
-}
-
-XMMATRIX Cube::GetTransformXM() const
-{
-	return XMMatrixTranslation(x, y, z) * XMMatrixRotationRollPitchYaw(-XM_PI / 2.0f, 0, 0);
 }

@@ -76,6 +76,7 @@ public:
 	void BeginFrame(float r, float g, float b);
 	void EndFrame();
 	void DrawIndexed(unsigned int count);
+	void DrawIndexed(unsigned int count, unsigned int baseIndex, unsigned int baseVertex);
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();

@@ -14,10 +14,8 @@ private:
 public:
 	Cube() = default;
 	Cube(Graphics* gfx, float x, float y, float z);
-	void Update(Graphics* gfx, float frameTime) override;
+	void Update(Graphics* gfx, float frameTime);
 	~Cube() override = default;
-private:
-	XMMATRIX GetTransformXM() const override;
 private:
 	float x;
 	float y;

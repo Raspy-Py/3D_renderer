@@ -7,7 +7,7 @@ Light::Light(Graphics* gfx)
 {
 	if (Light::pConstBuffer == nullptr)
 	{
-		pConstBuffer = std::make_unique<PixelConstantBuffer<Light::Params>>(gfx, 0, Light::params);
+		pConstBuffer = std::make_unique<PixelConstantBuffer<Light::Params>>(gfx, 2, Light::params);
 	}
 }
 

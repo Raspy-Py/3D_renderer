@@ -1,6 +1,10 @@
-cbuffer Transform
+cbuffer ModelTransform : register(b0)
 {
     float4x4 world;
+}
+
+cbuffer ViewerTransform : register(b1)
+{
     float4x4 viewProj;
     float3 cameraPos;
 };
@@ -16,8 +20,8 @@ struct VS_Output
 
 VS_Output main(
     float3 inPos      : POSITION, 
-    float2 inTexCoord : TEXCOORD,
-    float3 inNormal   : NORMAL
+    float3 inNormal   : NORMAL,
+    float2 inTexCoord : TEXCOORD
 )
 {
     VS_Output output;

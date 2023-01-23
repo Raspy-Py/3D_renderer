@@ -14,6 +14,6 @@ TransformBuffer::TransformBuffer(Graphics* gfx, UINT slot, const Drawable* paren
 
 void TransformBuffer::Bind(Graphics* gfx)
 {
-	pVcbuf->Update(gfx, parent->GetTransformXM());
+	pVcbuf->Update(gfx, XMMatrixIdentity());
 	pVcbuf->Bind(gfx);
 }
